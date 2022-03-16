@@ -3,7 +3,7 @@
 #####################
 
 from tkinter import *
-from math import *
+import tkinter as tk
 import math
 import random
 
@@ -55,7 +55,7 @@ class Cochon(object):
         centrey2 = cochon2.y1 + rayon
 
         # Calcul de la distance entre les deux cochons
-        self.longueur = sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - (rayon * 2)
+        self.longueur = math.sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - (rayon * 2)
 
     def __control_parois(self):
         # rebond à droite et à gauche
@@ -88,7 +88,7 @@ class Cochon(object):
         Méthode permettant de protéger un cochon d'un rebaillement pendant la durée du décompte.
         """
         if self.decompte > 0:
-            can.itemconfig(self.rond, fill='green')  # Cochon protégé
+            can.itemconfig(self.rond, fill='orange')  # Cochon protégé
             self.decompte -= 1
         else:
             can.itemconfig(self.rond, fill='green')  # Cochon déprotégé
@@ -174,7 +174,7 @@ class Cochon(object):
 
 
 ###############
-#   Foncions  #
+#   Fonctions  #
 ###############
 
 
@@ -208,7 +208,7 @@ def generateur_de_cochon():
     nb_cochon = getScale()
 
     # Calcul de la distance optimale entre les cochons
-    distance_inter_cochon = sqrt((Taille_canva ** 2 - diametre) / (nb_cochon)) - diametre
+    distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / (nb_cochon)) - diametre
 
     # Initialisation des variables
     ensemble_cochon = []
@@ -257,9 +257,9 @@ def main():
     fen = Tk()
 
     # Labels
-    Label(fen, text="Bienvenue dans la porcherie", font="Helvetica 16 bold ").pack()  # Titre
-    Label(fen, text=" Modélisation de la propagation du bâillement chez le porc", font="Helvetica 12 italic ").pack()
-    fen.title('Porcherie by Theo and Auguste')
+    Label(fen, text="Welcome to the Pig Farm", font="Helvetica 16 bold ").pack()  # Titre
+    Label(fen, text=" Pig yawning simulation", font="Helvetica 12 italic ").pack()
+    fen.title('Piggery yawning by Thomas C. and Mathieu G.')
 
     # Création de la porcherie
     can = Canvas(fen, width=Taille_canva, height=Taille_canva, bg='white')
