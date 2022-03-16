@@ -29,6 +29,7 @@ class Cochon:
 
         # Détermination de l'age
         self.age = random.randint(0, 22)
+        self.jours = 0
 
         self.dx = dx
         self.dy = dy
@@ -41,7 +42,7 @@ class Cochon:
         if 9 <= self.age <= 22:
             self.taille = diametre
             self.rond = can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx, 3 + self.taille + self.dy,
-                                        width=1, fill='green')
+                                        width=1, fill='pink')
         else:
             self.taille = diametre/1.2
             self.rond = can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx, 3 + self.taille + self.dy,
@@ -87,7 +88,7 @@ class Cochon:
         Méthode permettant de déclancher un baillement spontanné pour le cochon.
         Modification du decompte correspondant au temps de récupération entre deux baillement.
         """
-        if random.random() < 0.001 and self.decompte == 0:
+        if not self.age < 9 and random.random() < 0.001 and self.decompte == 0:
             can.itemconfig(self.rond, fill='red')
             self.decompte = 3
 
@@ -108,7 +109,7 @@ class Cochon:
                 can.itemconfig(self.rond, fill='orange')  # Cochon protégé
                 self.decompte -= 1
             else:
-                can.itemconfig(self.rond, fill='green')  # Cochon déprotégé
+                can.itemconfig(self.rond, fill='pink')  # Cochon déprotégé
 
     def __probabilite(self, cochon2):
         # Calcul de la probalilité de bailler
@@ -129,15 +130,19 @@ class Cochon:
                 else:
                     self.proba += 0.25 * 0.28
 
-    def vieillissement(self):  # Permet le vieillissement d'un cochon une fois par tour
-        if self.age < 23:
-            self.age += 1
-            if self.age == 9:
-                self.taille = diametre
+    def vieillissement(self):  # Permet le vieillissement d'un cochon une fois tout les 30 tours
+        if self.jours == 30:
+            self.jours = 0
+            if self.age < 23:
+                self.age += 1
+                if self.age == 9:
+                    self.taille = diametre
+            else:
+                self.age = 1
+                self.taille = diametre/1.2
+                can.itemconfig(self.rond, fill='grey')
         else:
-            self.age = 1
-            self.taille = diametre/1.2
-            can.itemconfig(self.rond, fill='grey')
+            self.jours += 1
 
     def mouvement(self):
 
@@ -199,7 +204,7 @@ class Cochon:
             self.vieillissement()
 
             # Mouvement de 50ms
-            fen.after(100, self.mouvement)
+            fen.after(75, self.mouvement)
 
 
 ################
@@ -273,7 +278,7 @@ def main():
     # Création d'un dictionnaire des ages avec la proba de transmettre le baillement associée
     dico_age = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0,
                 9: 0.52, 10: 0.5, 11: 0.1, 12: 0.15, 13: 0.45, 14: 0.4, 15: 0.2, 16: 0.13, 17: 0.4, 18: 0.8, 19: 0.82,
-                20: 0.68, 21: 0.25, 22: 0.6, 23:0}
+                20: 0.68, 21: 0.25, 22: 0.6, 23: 0}
 
     # Création de la fenêtre
     fen = tk.Tk()
