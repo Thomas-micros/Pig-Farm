@@ -2,15 +2,14 @@
 #   Bibliotheques   #
 #####################
 
-from tkinter import *
 import tkinter as tk
 import math
 import random
 
-
 #################
 #   Classes   #
 #################
+
 
 class Cochon(object):
     """
@@ -134,7 +133,6 @@ class Cochon(object):
                 self.__direction()
 
             # initilisation des variables
-            j = 0
             self.proba = 0
 
             # Controle des parois
@@ -147,7 +145,7 @@ class Cochon(object):
                     self.__distance(cochon)  # Calcul de la distance avec le cochon i
                     # Contrôle de non superposition des cochons
                     if self.longueur <= 0:
-                        self.DX, self.DY, j, proba = 0, 0, 0, 0  # Réinitialisation des variables
+                        self.DX, self.DY, proba = 0, 0, 0  # Réinitialisation des variables
                         break
 
                 # Calcul de la probalilité de bailler
@@ -173,12 +171,12 @@ class Cochon(object):
             fen.after(150, self.mouvement)
 
 
-###############
+################
 #   Fonctions  #
-###############
+################
 
 
-def getScale():
+def getscale():
     """
     Récuperer la valeur de scale
     """
@@ -202,13 +200,13 @@ def generateur_de_cochon():
     stop = 1
 
     # Effacement des formes
-    can.delete(ALL)
+    can.delete(tk.ALL)
 
     # Récupération du nombre de cochon
-    nb_cochon = getScale()
+    nb_cochon = getscale()
 
     # Calcul de la distance optimale entre les cochons
-    distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / (nb_cochon)) - diametre
+    distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / nb_cochon) - diametre
 
     # Initialisation des variables
     ensemble_cochon = []
@@ -241,7 +239,6 @@ def generateur_de_cochon():
 def main():
     global stop, fen, Taille_canva, diametre, rayon, dico_age, can, scale
 
-
     stop = 0
 
     # Déclaration de la taille de notre canva
@@ -254,28 +251,28 @@ def main():
                 20: 0.68, 21: 0.25, 22: 0.6}
 
     # Création de la fenêtre
-    fen = Tk()
+    fen = tk.Tk()
 
     # Labels
-    Label(fen, text="Welcome to the Pig Farm", font="Helvetica 16 bold ").pack()  # Titre
-    Label(fen, text=" Pig yawning simulation", font="Helvetica 12 italic ").pack()
+    tk.Label(fen, text="Welcome to the Pig Farm", font="Helvetica 16 bold ").pack()  # Titre
+    tk.Label(fen, text=" Pig yawning simulation", font="Helvetica 12 italic ").pack()
     fen.title('Piggery yawning by Thomas C. and Mathieu G.')
 
     # Création de la porcherie
-    can = Canvas(fen, width=Taille_canva, height=Taille_canva, bg='white')
+    can = tk.Canvas(fen, width=Taille_canva, height=Taille_canva, bg='white')
     can.pack(padx=5, pady=5)
 
     # Barre de scrooll
-    value = DoubleVar()
-    scale = Scale(fen, from_=1, to=200, variable=value, orient='horizontal')
+    value = tk.DoubleVar()
+    scale = tk.Scale(fen, from_=1, to=200, variable=value, orient='horizontal')
     scale.pack()
 
     # Bouttons
-    bouton_generateur = Button(fen, text="Creation", command=generateur_de_cochon)
-    bouton_generateur.pack(side=LEFT, padx=100)
+    bouton_generateur = tk.Button(fen, text="Creation", command=generateur_de_cochon)
+    bouton_generateur.pack(side=tk.LEFT, padx=100)
 
-    bouton_pause = Button(fen, text="Start/Pause", command=pause)
-    bouton_pause.pack(side=LEFT)
+    bouton_pause = tk.Button(fen, text="Start/Pause", command=pause)
+    bouton_pause.pack(side=tk.LEFT)
 
     fen.mainloop()
 
