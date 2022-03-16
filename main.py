@@ -11,7 +11,7 @@ import random
 #################
 
 
-class Cochon(object):
+class Cochon:
     """
     Classe définissant un cochon
     """
@@ -28,8 +28,13 @@ class Cochon(object):
         self.sexe = 'male' if random.random() < 0.5 else 'femelle'
 
         # Détermination de l'age
-        self.age = random.randint(9, 22)
-        self.rond = can.create_oval(3 + dx, 3 + dy, 3 + diametre + dx, 3 + diametre + dy, width=1, fill='green')
+        self.age = random.randint(0, 22)
+
+        if 9 <= self.age <= 22:
+            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + diametre + dx, 3 + diametre + dy, width=1, fill='green')
+        else:
+            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + diametre + dx, 3 + diametre + dy, width=1, fill='grey')
+
         self.x1, self.y1, self.x2, self.y2 = can.bbox(self.rond)
 
     def __direction(self):
@@ -111,6 +116,10 @@ class Cochon(object):
                 else:
                     self.proba += 0.25 * 0.28
 
+    def vieillissement(self):  # Permet le vieillissement d'un cochon une fois par tour
+        if self.age < 22:
+            self.age += 1
+
     def mouvement(self):
 
         # Permet d'interromptre la boucle
@@ -167,6 +176,9 @@ class Cochon(object):
             # Baillement spontannée
             self.__baillement_spontane()
 
+            # Vieillissement
+            self.vieillissement()
+
             # Mouvement de 50ms
             fen.after(150, self.mouvement)
 
@@ -175,21 +187,52 @@ class Cochon(object):
 #   Fonctions  #
 ################
 
-
-def getscale():
-    """
-    Récuperer la valeur de scale
-    """
-    nb_cochon = scale.get()
-    return nb_cochon
-
-
 def pause():
     global stop
     stop = 0 if stop == 1 else 1
 
     # Reprise du mouvement
     if stop == 0:
+        for cochon in ensemble_cochon:
+            cochon.mouvement()
+
+
+class Porcherie:
+    def __init__(self, nb_cochon):
+        nb_cochon = scale.get()
+        # Mise en pause du mouvement précédent
+        global stop, ensemble_cochon
+        stop = 1
+
+        # Effacement des formes
+        can.delete(tk.ALL)
+
+        # Récupération du nombre de cochon
+        nb_cochon = scale.get()
+
+        # Calcul de la distance optimale entre les cochons
+        distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / nb_cochon) - diametre
+
+        # Initialisation des variables
+        ensemble_cochon = []
+        dx, dy = 0, 0
+
+        # Création des cochons
+        while dy < Taille_canva - diametre:
+            while dx < Taille_canva - diametre:
+                if len(ensemble_cochon) == nb_cochon:
+                    break
+                name = Cochon(dx, dy)
+                ensemble_cochon.append(name)
+                dx += diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
+
+            if len(ensemble_cochon) == nb_cochon:
+                break
+
+            dy += diametre + distance_inter_cochon
+            dx = 0  # retour à la ligne
+
+        # Déplacement des cochons
         for cochon in ensemble_cochon:
             cochon.mouvement()
 
@@ -203,7 +246,7 @@ def generateur_de_cochon():
     can.delete(tk.ALL)
 
     # Récupération du nombre de cochon
-    nb_cochon = getscale()
+    nb_cochon = scale.get()
 
     # Calcul de la distance optimale entre les cochons
     distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / nb_cochon) - diametre
@@ -250,6 +293,10 @@ def main():
     dico_age = {9: 0.52, 10: 0.5, 11: 0.1, 12: 0.15, 13: 0.45, 14: 0.4, 15: 0.2, 16: 0.13, 17: 0.4, 18: 0.8, 19: 0.82,
                 20: 0.68, 21: 0.25, 22: 0.6}
 
+    dico_age = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0,
+                9: 0.52, 10: 0.5, 11: 0.1, 12: 0.15, 13: 0.45, 14: 0.4, 15: 0.2, 16: 0.13, 17: 0.4, 18: 0.8, 19: 0.82,
+                20: 0.68, 21: 0.25, 22: 0.6}
+
     # Création de la fenêtre
     fen = tk.Tk()
 
@@ -259,7 +306,7 @@ def main():
     fen.title('Piggery yawning by Thomas C. and Mathieu G.')
 
     # Création de la porcherie
-    can = tk.Canvas(fen, width=Taille_canva, height=Taille_canva, bg='white')
+    can = tk.Canvas(fen, width=Taille_canva, height=Taille_canva, bg='ivory')
     can.pack(padx=5, pady=5)
 
     # Barre de scrooll
