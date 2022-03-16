@@ -16,7 +16,7 @@ class Cochon:
     Classe définissant un cochon
     """
 
-    def __init__(self, dx, dy):
+    def __init__(self, dx, dy, taille):
         """
         contructeur :
             - Initialise un attribut nommé rond représentant le cochon en lui même
@@ -30,10 +30,14 @@ class Cochon:
         # Détermination de l'age
         self.age = random.randint(0, 22)
 
+        self.taille = taille
+
         if 9 <= self.age <= 22:
-            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + diametre + dx, 3 + diametre + dy, width=1, fill='green')
+            self.taille = diametre
+            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + self.taille + dx, 3 + self.taille + dy, width=1, fill='green')
         else:
-            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + diametre + dx, 3 + diametre + dy, width=1, fill='grey')
+            self.taille = diametre/1.2
+            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + self.taille + dx, 3 + self.taille + dy, width=1, fill='grey')
 
         self.x1, self.y1, self.x2, self.y2 = can.bbox(self.rond)
 
@@ -63,11 +67,11 @@ class Cochon:
 
     def __control_parois(self):
         # rebond à droite et à gauche
-        if self.x1 + diametre + self.DX > Taille_canva or self.x1 + self.DX < 0:
+        if self.x1 + self.taille + self.DX > Taille_canva or self.x1 + self.DX < 0:
             self.DX = -self.DX
 
         # rebond en bas et en haut
-        if self.y1 + diametre + self.DY > Taille_canva or self.y1 + self.DY < 0:
+        if self.y1 + self.taille + self.DY > Taille_canva or self.y1 + self.DY < 0:
             self.DY = -self.DY
 
     def __baillement_spontane(self):
@@ -120,6 +124,8 @@ class Cochon:
     def vieillissement(self):  # Permet le vieillissement d'un cochon une fois par tour
         if self.age < 22:
             self.age += 1
+            if self.age == 9:
+                self.taille = diametre
 
     def mouvement(self):
 
@@ -169,7 +175,7 @@ class Cochon:
             self.y1 += self.DY
 
             # Déplacement du cochon
-            can.coords(self.rond, self.x1, self.y1, self.x1 + diametre, self.y1 + diametre)
+            can.coords(self.rond, self.x1, self.y1, self.x1 + self.taille, self.y1 + self.taille)
 
             # Baillement transmis
             self.__baillement_transmission()
@@ -181,7 +187,7 @@ class Cochon:
             self.vieillissement()
 
             # Mouvement de 50ms
-            fen.after(150, self.mouvement)
+            fen.after(100, self.mouvement)
 
 
 ################
@@ -199,6 +205,9 @@ def pause():
 
 
 class Porcherie:
+    """
+    essai de transformation des fonctions en poo
+    """
     def __init__(self, nb_cochon):
         nb_cochon = scale.get()
         # Mise en pause du mouvement précédent
@@ -261,7 +270,7 @@ def generateur_de_cochon():
         while dx < Taille_canva - diametre:
             if len(ensemble_cochon) == nb_cochon:
                 break
-            name = Cochon(dx, dy)
+            name = Cochon(dx, dy, diametre)
             ensemble_cochon.append(name)
             dx += diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
 
