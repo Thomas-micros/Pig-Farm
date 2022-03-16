@@ -67,11 +67,11 @@ class Cochon:
         if 9 <= self.age <= 22:
             self.taille = diametre
             self.rond = self.can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx,
-                                             3 + self.taille + self.dy, width=1, fill='pink')
+                                             3 + self.taille + self.dy, width=1, fill='DeepPink2')
         else:
             self.taille = diametre/1.2
             self.rond = self.can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx,
-                                             3 + self.taille + self.dy, width=1, fill='grey')
+                                             3 + self.taille + self.dy, width=1, fill='LightPink1')
 
         self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.rond)
 
@@ -114,7 +114,7 @@ class Cochon:
         Modification du decompte correspondant au temps de récupération entre deux baillement.
         """
         if not self.age < 9 and random.random() < 0.001 and self.decompte == 0:
-            self.can.itemconfig(self.rond, fill='red')
+            self.can.itemconfig(self.rond, fill='Green2')
             self.decompte = 3
 
     def __baillement_transmission(self):
@@ -122,7 +122,7 @@ class Cochon:
         Méthode permettant de faire bailler le cochon selon la proprabilité "proba"  correspondante
         """
         if random.random() < self.proba and self.decompte == 0:
-            self.can.itemconfig(self.rond, fill='red')
+            self.can.itemconfig(self.rond, fill='Green2')
             self.decompte = 3
 
     def __baillement_protection(self):
@@ -131,15 +131,15 @@ class Cochon:
         """
         if 9 <= self.age <= 22:
             if self.decompte > 0:
-                self.can.itemconfig(self.rond, fill='orange')  # Cochon protégé
+                self.can.itemconfig(self.rond, fill='grey')  # Cochon protégé
                 self.decompte -= 1
             else:
-                self.can.itemconfig(self.rond, fill='pink')  # Cochon déprotégé
+                self.can.itemconfig(self.rond, fill='DeepPink2')  # Cochon déprotégé
 
     def __probabilite(self, cochon2):
         # Calcul de la probalilité de bailler
 
-        if self.can.itemcget(cochon2.rond, 'fill') == 'red' and cochon2.sexe == "male":
+        if self.can.itemcget(cochon2.rond, 'fill') == 'Green2' and cochon2.sexe == "male":
             if cochon2.sexe == "male":
                 if self.longueur < 10:
                     self.proba += 0.65 * 0.4
@@ -165,7 +165,7 @@ class Cochon:
             else:
                 self.age = 1
                 self.taille = diametre/1.2
-                self.can.itemconfig(self.rond, fill='grey')
+                self.can.itemconfig(self.rond, fill='LightPink1')
         else:
             self.jours += 1
 
@@ -232,7 +232,7 @@ class Cochon:
             self.vieillissement()
 
             # Mouvement de 50ms
-            self.fen.after(75, self.mouvement)
+            self.fen.after(120, self.mouvement)
 
 
 class Counter:
@@ -254,7 +254,7 @@ class Counter:
 ################
 
 def pause():
-    global stop
+    global stop  # V A R I A B L E S G L O B A L
     stop = 0 if stop == 1 else 1
 
     # Reprise du mouvement
@@ -283,7 +283,7 @@ class Root(tk.Tk):
 
         # Barre de scroll
         value = tk.DoubleVar()
-        self.scale = tk.Scale(self, from_=2, to=200, length=400, variable=value, orient='horizontal')
+        self.scale = tk.Scale(self, from_=2, to=200, length=600, variable=value, orient='horizontal')
         self.scale.pack()
 
         # Spacer
@@ -315,7 +315,7 @@ class Root(tk.Tk):
 
     def generateur_de_cochon(self):
         # Mise en pause du mouvement précédent
-        global stop, ensemble_cochon
+        global stop, ensemble_cochon  # V A R I A B L E S G L O B A L
         stop = 1
 
         # Effacement des formes
@@ -364,22 +364,19 @@ class Root(tk.Tk):
             self.after(1000, self.countdown)
 
 
-############################
-#   Programme Principale   #
-############################
+# Programme principal
 
-
-def main_oop():
-    global stop, Taille_canva, diametre, scale
+def main():
+    global stop, Taille_canva, diametre  # V A R I A B L E S G L O B A L
 
     stop = 0
 
     # Déclaration de la taille de notre canva
-    Taille_canva = 400
+    Taille_canva = 600
     diametre = Taille_canva / 20  # Taille d'un rond
 
     app = Root()
     app.mainloop()
 
 
-main_oop()
+main()
