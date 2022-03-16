@@ -16,7 +16,7 @@ class Cochon:
     Classe définissant un cochon
     """
 
-    def __init__(self, dx, dy, taille):
+    def __init__(self, dx, dy):
         """
         contructeur :
             - Initialise un attribut nommé rond représentant le cochon en lui même
@@ -30,14 +30,22 @@ class Cochon:
         # Détermination de l'age
         self.age = random.randint(0, 22)
 
-        self.taille = taille
+        self.dx = dx
+        self.dy = dy
+
+    def __str__(self):
+        return f"Cochon {self.sexe}, position {self.dy} : {self.dx}"
+
+    def forme(self):
 
         if 9 <= self.age <= 22:
             self.taille = diametre
-            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + self.taille + dx, 3 + self.taille + dy, width=1, fill='green')
+            self.rond = can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx, 3 + self.taille + self.dy,
+                                        width=1, fill='green')
         else:
             self.taille = diametre/1.2
-            self.rond = can.create_oval(3 + dx, 3 + dy, 3 + self.taille + dx, 3 + self.taille + dy, width=1, fill='grey')
+            self.rond = can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx, 3 + self.taille + self.dy,
+                                        width=1, fill='grey')
 
         self.x1, self.y1, self.x2, self.y2 = can.bbox(self.rond)
 
@@ -122,10 +130,14 @@ class Cochon:
                     self.proba += 0.25 * 0.28
 
     def vieillissement(self):  # Permet le vieillissement d'un cochon une fois par tour
-        if self.age < 22:
+        if self.age < 23:
             self.age += 1
             if self.age == 9:
                 self.taille = diametre
+        else:
+            self.age = 1
+            self.taille = diametre/1.2
+            can.itemconfig(self.rond, fill='grey')
 
     def mouvement(self):
 
@@ -204,49 +216,6 @@ def pause():
             cochon.mouvement()
 
 
-class Porcherie:
-    """
-    essai de transformation des fonctions en poo
-    """
-    def __init__(self, nb_cochon):
-        nb_cochon = scale.get()
-        # Mise en pause du mouvement précédent
-        global stop, ensemble_cochon
-        stop = 1
-
-        # Effacement des formes
-        can.delete(tk.ALL)
-
-        # Récupération du nombre de cochon
-        nb_cochon = scale.get()
-
-        # Calcul de la distance optimale entre les cochons
-        distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / nb_cochon) - diametre
-
-        # Initialisation des variables
-        ensemble_cochon = []
-        dx, dy = 0, 0
-
-        # Création des cochons
-        while dy < Taille_canva - diametre:
-            while dx < Taille_canva - diametre:
-                if len(ensemble_cochon) == nb_cochon:
-                    break
-                name = Cochon(dx, dy)
-                ensemble_cochon.append(name)
-                dx += diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
-
-            if len(ensemble_cochon) == nb_cochon:
-                break
-
-            dy += diametre + distance_inter_cochon
-            dx = 0  # retour à la ligne
-
-        # Déplacement des cochons
-        for cochon in ensemble_cochon:
-            cochon.mouvement()
-
-
 def generateur_de_cochon():
     # Mise en pause du mouvement précédent
     global stop, ensemble_cochon
@@ -270,8 +239,10 @@ def generateur_de_cochon():
         while dx < Taille_canva - diametre:
             if len(ensemble_cochon) == nb_cochon:
                 break
-            name = Cochon(dx, dy, diametre)
+            name = Cochon(dx, dy)
+            name.forme()
             ensemble_cochon.append(name)
+            print(name)
             dx += diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
 
         if len(ensemble_cochon) == nb_cochon:
@@ -300,12 +271,9 @@ def main():
     rayon = diametre / 2
 
     # Création d'un dictionnaire des ages avec la proba de transmettre le baillement associée
-    dico_age = {9: 0.52, 10: 0.5, 11: 0.1, 12: 0.15, 13: 0.45, 14: 0.4, 15: 0.2, 16: 0.13, 17: 0.4, 18: 0.8, 19: 0.82,
-                20: 0.68, 21: 0.25, 22: 0.6}
-
     dico_age = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0,
                 9: 0.52, 10: 0.5, 11: 0.1, 12: 0.15, 13: 0.45, 14: 0.4, 15: 0.2, 16: 0.13, 17: 0.4, 18: 0.8, 19: 0.82,
-                20: 0.68, 21: 0.25, 22: 0.6}
+                20: 0.68, 21: 0.25, 22: 0.6, 23:0}
 
     # Création de la fenêtre
     fen = tk.Tk()
@@ -321,7 +289,7 @@ def main():
 
     # Barre de scrooll
     value = tk.DoubleVar()
-    scale = tk.Scale(fen, from_=1, to=200, variable=value, orient='horizontal')
+    scale = tk.Scale(fen, from_=2, to=200, variable=value, orient='horizontal')
     scale.pack()
 
     # Bouttons
