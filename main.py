@@ -64,11 +64,11 @@ class Cochon:
     def __control_parois(self):
         # rebond à droite et à gauche
         if self.x1 + diametre + self.DX > Taille_canva or self.x1 + self.DX < 0:
-            self.DX = 0
+            self.DX = -self.DX
 
         # rebond en bas et en haut
         if self.y1 + diametre + self.DY > Taille_canva or self.y1 + self.DY < 0:
-            self.DY = 0
+            self.DY = -self.DY
 
     def __baillement_spontane(self):
         """
