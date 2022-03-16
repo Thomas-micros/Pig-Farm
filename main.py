@@ -91,11 +91,12 @@ class Cochon:
         """
         Méthode permettant de protéger un cochon d'un rebaillement pendant la durée du décompte.
         """
-        if self.decompte > 0:
-            can.itemconfig(self.rond, fill='orange')  # Cochon protégé
-            self.decompte -= 1
-        else:
-            can.itemconfig(self.rond, fill='green')  # Cochon déprotégé
+        if 9 <= self.age <= 22:
+            if self.decompte > 0:
+                can.itemconfig(self.rond, fill='orange')  # Cochon protégé
+                self.decompte -= 1
+            else:
+                can.itemconfig(self.rond, fill='green')  # Cochon déprotégé
 
     def __probabilite(self, cochon2):
         # Calcul de la probalilité de bailler
