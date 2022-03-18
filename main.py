@@ -16,14 +16,8 @@ class Pigs:
     Classe définissant un cochon
     """
 
-    def __init__(self, dx, dy, can, fen, canva_size=600):
-        """
-        contructeur :
-            - Initialise un attribut nommé visual représentant le cochon en lui même
-            - Initialise les attributs nommés x1,y1,x2,y2 correspondant aux coordonnées du cochon
-            - Initialise un attribut nommé sexe correspondand au sexe du cochon
-            - Initialise un attribut nommé age correspondant à l'age du cochon
-        """
+    def __init__(self, posx, posy, can, fen, canva_size=600):
+
         # Détermination du sexe
         self.sexe = 'male' if random.random() < 0.5 else 'femelle'
 
@@ -36,21 +30,21 @@ class Pigs:
 # ##########################################################################
 # BALISE 1 - Gestion du déplacement des cochons
 
-        self.dx = dx  # vitesse en x
-        self.dy = dy  # vitesse en y
+        # Coordonnées du cochon
+        self.x1 = 0
+        self.y1 = 0
+        self.x2 = 0
+        self.y2 = 0
 
-        self.DX = 0  # déplacement en x
-        self.DY = 0  # déplacement en y
-
-        self.x1 = 0  # Nouvelles coordonnées avancées de DX
-        self.y1 = 0  # Nouvelles coordonnées avancées de DY
-
-        self.x2 = 0  # Bord du cochon avancée
-        self.y2 = 0  # Bord du cochon avancée
+        self.DX = 0  # pas en x
+        self.DY = 0  # pas en y
 
 # ##########################################################################
 
         # Initialisation des variables utilisées
+
+        self.posx = posx  # position initiale sur le canva en x
+        self.posy = posy  # position initiale sur le canva en y
 
         self.visual = 0  # cochon
         self.piggy_size = 0  # Taille du cochon
@@ -71,7 +65,7 @@ class Pigs:
                          19: 0.82, 20: 0.68, 21: 0.25, 22: 0.6, 23: 0}
 
     def __str__(self):
-        return f"Cochon {self.sexe}, position {str(self.dy)[0:3]} : {str(self.dx)[0:3]}"
+        return f"Cochon {self.sexe}, position {str(self.posy)[0:3]} : {str(self.posx)[0:3]}"
 
     def piggy(self):
 
@@ -83,13 +77,13 @@ class Pigs:
 
         if 9 <= self.age <= 22:
             self.piggy_size = self.diametre
-            self.visual = self.can.create_oval(3 + self.dx, 3 + self.dy,
-                                               3 + self.piggy_size + self.dx, 3 + self.piggy_size + self.dy,
+            self.visual = self.can.create_oval(3 + self.posx, 3 + self.posy,
+                                               3 + self.piggy_size + self.posx, 3 + self.piggy_size + self.posy,
                                                width=1, fill='DeepPink2')  # cochon adulte
         else:
             self.piggy_size = self.diametre/1.2
-            self.visual = self.can.create_oval(2 + self.dx, 2 + self.dy,
-                                               2 + self.piggy_size + self.dx, 2 + self.piggy_size + self.dy,
+            self.visual = self.can.create_oval(2 + self.posx, 2 + self.posy,
+                                               2 + self.piggy_size + self.posx, 2 + self.piggy_size + self.posy,
                                                width=1, fill='LightPink1')  # cochonnet
 
         self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.visual)
@@ -113,7 +107,7 @@ class Pigs:
     def __distance(self, other_pig):
 
         # ##########################################################################
-        # BALISE 4
+        # BALISE 5
         """
         Renvoie la distance inter-cochon
         """
@@ -133,7 +127,7 @@ class Pigs:
     def __wall_bouncing(self):
 
         # ##########################################################################
-        # BALISE 5
+        # BALISE 4
         """
         Fait rebondir les cochons qui se heurtent à une parois en inversant DX et DY
         """
@@ -148,7 +142,7 @@ class Pigs:
         # ##########################################################################
 
         # ##########################################################################
-        # BALISE 9 - Gestion du baillement
+        # BALISE 8 - Gestion du baillement
 
     def __spont_yawning(self):
         """
@@ -237,9 +231,6 @@ class Pigs:
             # initilisation des variables
             self.proba = 0
 
-            # ##########################################################################
-            # BALISE 6 - Le controle est appelé à chaque mouvement
-
             # levage du blocage du mouvement
             if self.DX == 0 or self.DY == 0:
                 self.__direction()
@@ -248,9 +239,7 @@ class Pigs:
             self.__wall_bouncing()
 
             # ##########################################################################
-
-            # ##########################################################################
-            # Balise 7 - Iteration dans l'ensemble des cochons (sauf lui-même) pour :
+            # Balise 6 - Iteration dans l'ensemble des cochons (sauf lui-même) pour :
 
             # - calculer la distance inter-cochon
             # - contrôler la superposition
@@ -274,7 +263,7 @@ class Pigs:
             self.proba = self.proba * self.dico_age[self.age]
 
             # ##########################################################################
-            # Balise 8 - avancée des cochons en actualisant leur coordonées
+            # Balise 7 - avancée des cochons en actualisant leur coordonées
 
             self.x1 += self.DX
             self.y1 += self.DY
@@ -392,23 +381,23 @@ class Root(tk.Tk):
 
         # Initialisation des variables
         Piggy_list = []
-        dx, dy = 0, 0
+        posx, posy = 0, 0
 
         # Création des cochons
-        while dy < self.canva_size - self.diametre:
-            while dx < self.canva_size - self.diametre:
+        while posy < self.canva_size - self.diametre:
+            while posx < self.canva_size - self.diametre:
                 if len(Piggy_list) == nb_cochon:
                     break
-                name = Pigs(dx, dy, can=self.canvas, fen=self)
+                name = Pigs(posx, posy, can=self.canvas, fen=self)
                 name.piggy()
                 Piggy_list.append(name)
-                dx += self.diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
+                posx += self.diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
 
             if len(Piggy_list) == nb_cochon:
                 break
 
-            dy += self.diametre + distance_inter_cochon
-            dx = 0  # retour à la ligne
+            posy += self.diametre + distance_inter_cochon
+            posx = 0  # retour à la ligne
 
         # Déplacement des cochons
         for PIG in Piggy_list:
