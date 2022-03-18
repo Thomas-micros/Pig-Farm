@@ -75,16 +75,21 @@ class Pigs:
         Visuel du cochon selon son age
         """
 
-        if 9 <= self.age <= 22:
+        if 9 <= self.age <= 22:  # cochon adulte
             self.piggy_size = self.diametre
-            self.visual = self.can.create_oval(3 + self.posx, 3 + self.posy,
-                                               3 + self.piggy_size + self.posx, 3 + self.piggy_size + self.posy,
-                                               width=1, fill='DeepPink2')  # cochon adulte
-        else:
+            self.visual = self.can.create_oval(self.posx,
+                                               self.posy,
+                                               self.posx + self.piggy_size,
+                                               self.posy + self.piggy_size,
+                                               width=1, fill='DeepPink2')
+
+        else:  # cochonnet
             self.piggy_size = self.diametre/1.2
-            self.visual = self.can.create_oval(2 + self.posx, 2 + self.posy,
-                                               2 + self.piggy_size + self.posx, 2 + self.piggy_size + self.posy,
-                                               width=1, fill='LightPink1')  # cochonnet
+            self.visual = self.can.create_oval(self.posx,
+                                               self.posy,
+                                               self.posx + self.piggy_size,
+                                               self.posy + self.piggy_size,
+                                               width=1, fill='LightPink1')
 
         self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.visual)
 
