@@ -103,7 +103,6 @@ class Pigs:
 
         # ##########################################################################
 
-
     def __distance(self, other_pig):
 
         # ##########################################################################
@@ -161,8 +160,6 @@ class Pigs:
             self.can.itemconfig(self.visual, fill='Green2')
             self.recup = 3
 
-        # ##########################################################################
-
     def __yawning_shield(self):
         """
         Protege un cochon d'un rebaillement pendant la durée du décompte.
@@ -195,6 +192,8 @@ class Pigs:
                     self.proba += 0.2 * 0.28
                 else:
                     self.proba += 0.25 * 0.28
+
+        # ##########################################################################
 
     def __aging(self):  # Permet le vieillissement d'un cochon une fois tout les 30 tours
         if self.jours == 30:
