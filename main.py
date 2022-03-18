@@ -13,7 +13,12 @@ import random
 
 class Pigs:
     """
-    Classe définissant un cochon
+    Classe définissant un cochon.
+    Prend en entrée (__init__) :
+     - la position initiale en x (posx) et en y (posy)
+     - Le canva de la porcherie (can)
+     - La fenêtre tkinter (fen)
+     - La taille du canvas (canva_size)
     """
 
     def __init__(self, posx, posy, can, fen, canva_size=600):
@@ -75,20 +80,22 @@ class Pigs:
         Visuel du cochon selon son age
         """
 
-        if 9 <= self.age <= 22:  # cochon adulte
+        # cochon adulte
+        if 9 <= self.age <= 22:
             self.piggy_size = self.diametre
-            self.visual = self.can.create_oval(self.posx,
-                                               self.posy,
-                                               self.posx + self.piggy_size,
-                                               self.posy + self.piggy_size,
+            self.visual = self.can.create_oval(self.posx,  # x1
+                                               self.posy,  # x2
+                                               self.posx + self.piggy_size,  # x2
+                                               self.posy + self.piggy_size,  # y2
                                                width=1, fill='DeepPink2')
 
-        else:  # cochonnet
+        # cochonnet
+        else:
             self.piggy_size = self.diametre/1.2
-            self.visual = self.can.create_oval(self.posx,
-                                               self.posy,
-                                               self.posx + self.piggy_size,
-                                               self.posy + self.piggy_size,
+            self.visual = self.can.create_oval(self.posx,  # x1
+                                               self.posy,  # x2
+                                               self.posx + self.piggy_size,  # x2
+                                               self.posy + self.piggy_size,  # y2
                                                width=1, fill='LightPink1')
 
         self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.visual)
@@ -154,7 +161,7 @@ class Pigs:
         """
         if not self.age < 9 and random.random() < 0.001 and self.recup == 0:
             self.can.itemconfig(self.visual, fill='Green2')
-            self.recup = 3
+            self.recup = 5
 
     def __contag_yawning(self):
         """
@@ -163,7 +170,7 @@ class Pigs:
         """
         if random.random() < self.proba and self.recup == 0:
             self.can.itemconfig(self.visual, fill='Green2')
-            self.recup = 3
+            self.recup = 5
 
     def __yawning_shield(self):
         """
@@ -381,7 +388,7 @@ class Root(tk.Tk):
         nb_cochon = self.scale.get()
 
         # Calcul de la distance optimale entre les cochons
-        distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon) - self.diametre
+        distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon)  - self.diametre
 
         # Initialisation des variables
         Piggy_list = []
@@ -392,10 +399,10 @@ class Root(tk.Tk):
             while posx < self.canva_size - self.diametre:
                 if len(Piggy_list) == nb_cochon:
                     break
-                name = Pigs(posx, posy, can=self.canvas, fen=self)
-                name.piggy()
-                Piggy_list.append(name)
-                posx += self.diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
+                pig_name = Pigs(posx, posy, can=self.canvas, fen=self, canva_size=self.canva_size)
+                pig_name.piggy()
+                Piggy_list.append(pig_name)
+                posx += self.diametre + distance_inter_cochon
 
             if len(Piggy_list) == nb_cochon:
                 break
