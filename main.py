@@ -33,21 +33,27 @@ class Cochon:
 
         # Initialisation des variables utilisées
 
-        self.x1 = 0
-        self.x2 = 0
-        self.y1 = 0
-        self.y2 = 0
+# ###################################################
+# BALISE 1
 
-        self.visual = 0  # cochon
-        self.piggy_size = 0  # Taille du cochon
-
-        self.decompte = 0  # Décompte du temps de récupération entre deux baillements
+        self.x1 = 0  # Nouvelles coordonnées
+        self.x2 = 0  # Nouvelles coordonnées
+        self.y1 = 0  # Nouvelles coordonnées
+        self.y2 = 0  # Nouvelles coordonnées
 
         self.dx = dx  # vitesse en x
         self.dy = dy  # vitesse en y
 
         self.DX = 0  # déplacement en x
         self.DY = 0  # déplacement en y
+
+# ###################################################
+        self.visual = 0  # cochon
+        self.piggy_size = 0  # Taille du cochon
+
+        self.decompte = 0  # Décompte du temps de récupération entre deux baillements
+
+
 
         self.can = can  # canvas de la porcherie
         self.fen = fen  # fenetre tkinter
