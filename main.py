@@ -16,10 +16,10 @@ class Cochon:
     Classe définissant un cochon
     """
 
-    def __init__(self, dx, dy, can, fen):
+    def __init__(self, dx, dy, can, fen, canva_size=600):
         """
         contructeur :
-            - Initialise un attribut nommé rond représentant le cochon en lui même
+            - Initialise un attribut nommé visual représentant le cochon en lui même
             - Initialise les attributs nommés x1,y1,x2,y2 correspondant aux coordonnées du cochon
             - Initialise un attribut nommé sexe correspondand au sexe du cochon
             - Initialise un attribut nommé age correspondant à l'age du cochon
@@ -31,26 +31,29 @@ class Cochon:
         self.age = random.randint(0, 22)
         self.jours = 0
 
-        # Définition des variables utilisées dans le __init__
+        # Initialisation des variables utilisées
 
         self.x1 = 0
         self.x2 = 0
         self.y1 = 0
         self.y2 = 0
 
-        self.rond = 0  # cochon
-        self.taille = 0  # Taille du cochon
+        self.visual = 0  # cochon
+        self.piggy_size = 0  # Taille du cochon
 
         self.decompte = 0  # Décompte du temps de récupération entre deux baillements
 
-        self.dx = dx  # vitesse en x ?/!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\ à vérifier !
-        self.dy = dy  # vitesse en y ?
+        self.dx = dx  # vitesse en x
+        self.dy = dy  # vitesse en y
 
-        self.DX = 0  # déplacement en x ? /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\  /!\ à vérifier !
+        self.DX = 0  # déplacement en x
         self.DY = 0  # déplacement en y
 
         self.can = can  # canvas de la porcherie
         self.fen = fen  # fenetre tkinter
+
+        self.canva_size = canva_size
+        self.diametre = self.canva_size / 20
 
         self.proba = 0
 
@@ -62,18 +65,18 @@ class Cochon:
     def __str__(self):
         return f"Cochon {self.sexe}, position {str(self.dy)[0:3]} : {str(self.dx)[0:3]}"
 
-    def forme(self):
+    def piggy(self):
 
         if 9 <= self.age <= 22:
-            self.taille = diametre
-            self.rond = self.can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx,
-                                             3 + self.taille + self.dy, width=1, fill='DeepPink2')
+            self.piggy_size = self.diametre
+            self.visual = self.can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.piggy_size + self.dx,
+                                               3 + self.piggy_size + self.dy, width=1, fill='DeepPink2')
         else:
-            self.taille = diametre/1.2
-            self.rond = self.can.create_oval(3 + self.dx, 3 + self.dy, 3 + self.taille + self.dx,
-                                             3 + self.taille + self.dy, width=1, fill='LightPink1')
+            self.piggy_size = self.diametre/1.2
+            self.visual = self.can.create_oval(2 + self.dx, 2 + self.dy, 2 + self.piggy_size + self.dx,
+                                               2 + self.piggy_size + self.dy, width=1, fill='LightPink1')
 
-        self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.rond)
+        self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.visual)
 
     def __direction(self):
         """
@@ -83,64 +86,64 @@ class Cochon:
         self.DX = 10 * math.cos(angle)
         self.DY = 10 * math.sin(angle)
 
-    def __distance(self, cochon2):
+    def __distance(self, other_PIG):
         """
         Méthode qui pour l'instance et un autre cochon donné calcule la distance
         les séparant nommé longueur.
         """
         # Calcul du centre du cochon déplacé de DX, DY
-        centredx1 = self.x1 + self.DX + diametre/2
-        centredy1 = self.y1 + self.DY + diametre/2
+        centredx1 = self.x1 + self.DX + self.diametre/2
+        centredy1 = self.y1 + self.DY + self.diametre/2
 
         # Calcul le centre du deuxième cochon
-        centrex2 = cochon2.x1 + diametre/2
-        centrey2 = cochon2.y1 + diametre/2
+        centrex2 = other_PIG.x1 + self.diametre/2
+        centrey2 = other_PIG.y1 + self.diametre/2
 
         # Calcul de la distance entre les deux cochons
-        self.longueur = math.sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - diametre
+        self.longueur = math.sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - self.diametre
 
-    def __control_parois(self):
+    def __Wall_bouncing(self):
         # rebond à droite et à gauche
-        if self.x1 + self.taille + self.DX > Taille_canva or self.x1 + self.DX < 0:
+        if self.x1 + self.piggy_size + self.DX > self.canva_size or self.x1 + self.DX < 0:
             self.DX = -self.DX
 
         # rebond en bas et en haut
-        if self.y1 + self.taille + self.DY > Taille_canva or self.y1 + self.DY < 0:
+        if self.y1 + self.piggy_size + self.DY > self.canva_size or self.y1 + self.DY < 0:
             self.DY = -self.DY
 
-    def __baillement_spontane(self):
+    def __spont_yawning(self):
         """
         Méthode permettant de déclancher un baillement spontanné pour le cochon.
         Modification du decompte correspondant au temps de récupération entre deux baillement.
         """
         if not self.age < 9 and random.random() < 0.001 and self.decompte == 0:
-            self.can.itemconfig(self.rond, fill='Green2')
+            self.can.itemconfig(self.visual, fill='Green2')
             self.decompte = 3
 
-    def __baillement_transmission(self):
+    def __contag_yawning(self):
         """
         Méthode permettant de faire bailler le cochon selon la proprabilité "proba"  correspondante
         """
         if random.random() < self.proba and self.decompte == 0:
-            self.can.itemconfig(self.rond, fill='Green2')
+            self.can.itemconfig(self.visual, fill='Green2')
             self.decompte = 3
 
-    def __baillement_protection(self):
+    def __yawning_shield(self):
         """
         Méthode permettant de protéger un cochon d'un rebaillement pendant la durée du décompte.
         """
         if 9 <= self.age <= 22:
             if self.decompte > 0:
-                self.can.itemconfig(self.rond, fill='grey')  # Cochon protégé
+                self.can.itemconfig(self.visual, fill='grey')  # Cochon protégé
                 self.decompte -= 1
             else:
-                self.can.itemconfig(self.rond, fill='DeepPink2')  # Cochon déprotégé
+                self.can.itemconfig(self.visual, fill='DeepPink2')  # Cochon déprotégé
 
-    def __probabilite(self, cochon2):
+    def __yawning_probability(self, other_PIG):
         # Calcul de la probalilité de bailler
 
-        if self.can.itemcget(cochon2.rond, 'fill') == 'Green2' and cochon2.sexe == "male":
-            if cochon2.sexe == "male":
+        if self.can.itemcget(other_PIG.visual, 'fill') == 'Green2' and other_PIG.sexe == "male":
+            if other_PIG.sexe == "male":
                 if self.longueur < 10:
                     self.proba += 0.65 * 0.4
                 elif self.longueur < 100:
@@ -155,17 +158,17 @@ class Cochon:
                 else:
                     self.proba += 0.25 * 0.28
 
-    def vieillissement(self):  # Permet le vieillissement d'un cochon une fois tout les 30 tours
+    def __aging(self):  # Permet le vieillissement d'un cochon une fois tout les 30 tours
         if self.jours == 30:
             self.jours = 0
             if self.age < 23:
                 self.age += 1
                 if self.age == 9:
-                    self.taille = diametre
+                    self.piggy_size = self.diametre
             else:
                 self.age = 1
-                self.taille = diametre/1.2
-                self.can.itemconfig(self.rond, fill='LightPink1')
+                self.piggy_size = self.diametre/1.2
+                self.can.itemconfig(self.visual, fill='LightPink1')
         else:
             self.jours += 1
 
@@ -180,7 +183,7 @@ class Cochon:
                 self.decompte = 0
 
             # Protection post baillement
-            self.__baillement_protection()
+            self.__yawning_shield()
 
             # Par défaut garde les valeurs DX,DY précédentes sinon initialisation de l'attribut DX et DY
             if not hasattr(self, 'DX'):
@@ -194,14 +197,14 @@ class Cochon:
             self.proba = 0
 
             # Controle des parois
-            self.__control_parois()
+            self.__Wall_bouncing()
 
-            for cochon in ensemble_cochon:  # Parcours l'ensemble des cochons
+            for PIG in Piggy_list:  # Parcours l'ensemble des cochons
 
                 # Regarde si c'est le même cochon
-                if cochon.x1 != self.x1 and cochon.y1 != self.y1:
+                if PIG.x1 != self.x1 and PIG.y1 != self.y1:
 
-                    self.__distance(cochon)  # Calcul de la distance avec le cochon i
+                    self.__distance(PIG)  # Calcul de la distance avec le cochon i
 
                     # Contrôle de non superposition des cochons
                     if self.longueur <= 0:
@@ -210,7 +213,7 @@ class Cochon:
                         break
 
                 # Calcul de la probalilité de bailler
-                self.__probabilite(cochon)
+                self.__yawning_probability(PIG)
 
             # Prise en compte de l'age du cochon dans
             self.proba = self.proba * self.dico_age[self.age]
@@ -220,19 +223,19 @@ class Cochon:
             self.y1 += self.DY
 
             # Déplacement du cochon
-            self.can.coords(self.rond, self.x1, self.y1, self.x1 + self.taille, self.y1 + self.taille)
+            self.can.coords(self.visual, self.x1, self.y1, self.x1 + self.piggy_size, self.y1 + self.piggy_size)
 
             # Baillement transmis
-            self.__baillement_transmission()
+            self.__contag_yawning()
 
-            # Baillement spontannée
-            self.__baillement_spontane()
+            # Baillement spontanné
+            self.__spont_yawning()
 
             # Vieillissement
-            self.vieillissement()
+            self.__aging()
 
             # Mouvement de 50ms
-            self.fen.after(120, self.mouvement)
+            self.fen.after(125, self.mouvement)
 
 
 class Counter:
@@ -249,36 +252,39 @@ class Counter:
         return self.nb_baillement
 
 
-################
-#   Fonctions  #
-################
-
 def pause():
-    global stop  # V A R I A B L E S G L O B A L
+
+    global stop
     stop = 0 if stop == 1 else 1
 
     # Reprise du mouvement
     if stop == 0:
-        for cochon in ensemble_cochon:
-            cochon.mouvement()
+        for PIG in Piggy_list:
+            PIG.mouvement()
 
 
 class Root(tk.Tk):
-    def __init__(self):
+
+    """
+    Classe d'affichage
+    """
+
+    def __init__(self, canva_size=600):
         tk.Tk.__init__(self)
         self.label = tk.Label(self, text="", width=10)
 
         # Variables
         self.nb_baillement = 0
 
-        # Labels
-        tk.Label(self, text="\n Welcome to the Pig Farm", font="Arial 20 bold ").pack()
+        self.canva_size = canva_size
+        self.diametre = self.canva_size / 20
 
+        # Labels
         tk.Label(self, text="\n\n Pig yawning simulation\n", font="Arial 12 italic ").pack()
 
         self.title('Piggery yawning by Thomas C. and Mathieu G.')
 
-        self.canvas = tk.Canvas(self, width=Taille_canva, height=Taille_canva, bg='ivory')
+        self.canvas = tk.Canvas(self, width=self.canva_size, height=self.canva_size, bg='ivory')
         self.canvas.pack(padx=5, pady=5)
 
         # Barre de scroll
@@ -303,11 +309,16 @@ class Root(tk.Tk):
 
         tk.Label(self, text=f"Nombre de baillements : ", font="Arial 12 italic ").pack()
 
-        # #############################################################
+        # self.label.pack()
+        # self.remaining = 0
+        # self.count(10)
 
-        self.label.pack()
-        self.remaining = 0
-        self.countdown(10)
+        # global Yawning_count
+        #
+        # self.label.configure(text=Yawning_count)
+        #
+        # Yawning_count = Tkinter_variable(master=None)
+        # var.set(Yawning_count)
 
     def erase(self):
         # Effacement des formes
@@ -315,8 +326,9 @@ class Root(tk.Tk):
 
     def generateur_de_cochon(self):
         # Mise en pause du mouvement précédent
-        global stop, ensemble_cochon  # V A R I A B L E S G L O B A L
+        global stop, Piggy_list, Yawning_count
         stop = 1
+        Yawning_count = 0
 
         # Effacement des formes
         self.erase()
@@ -325,58 +337,44 @@ class Root(tk.Tk):
         nb_cochon = self.scale.get()
 
         # Calcul de la distance optimale entre les cochons
-        distance_inter_cochon = math.sqrt((Taille_canva ** 2 - diametre) / nb_cochon) - diametre
+        distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon) - self.diametre
 
         # Initialisation des variables
-        ensemble_cochon = []
+        Piggy_list = []
         dx, dy = 0, 0
 
         # Création des cochons
-        while dy < Taille_canva - diametre:
-            while dx < Taille_canva - diametre:
-                if len(ensemble_cochon) == nb_cochon:
+        while dy < self.canva_size - self.diametre:
+            while dx < self.canva_size - self.diametre:
+                if len(Piggy_list) == nb_cochon:
                     break
                 name = Cochon(dx, dy, can=self.canvas, fen=self)
-                name.forme()
-                ensemble_cochon.append(name)
-                print(name)
-                dx += diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
+                name.piggy()
+                Piggy_list.append(name)
+                dx += self.diametre + distance_inter_cochon  # Permet de ne pas faire spawn les cochons au même endroit
 
-            if len(ensemble_cochon) == nb_cochon:
+            if len(Piggy_list) == nb_cochon:
                 break
 
-            dy += diametre + distance_inter_cochon
+            dy += self.diametre + distance_inter_cochon
             dx = 0  # retour à la ligne
 
         # Déplacement des cochons
-        for cochon in ensemble_cochon:
-            cochon.mouvement()
+        for PIG in Piggy_list:
+            PIG.mouvement()
 
-    def countdown(self, remaining=None):
-        if remaining is not None:
-            self.remaining = remaining
-
-        if self.remaining <= 0:
-            self.label.configure(text="time's up!")
-        else:
-            self.label.configure(text="%d" % self.remaining)
-            self.remaining = self.remaining - 1
-            self.after(1000, self.countdown)
 
 
 # Programme principal
 
-def main():
-    global stop, Taille_canva, diametre  # V A R I A B L E S G L O B A L
 
+def main():
+
+    global stop
     stop = 0
 
-    # Déclaration de la taille de notre canva
-    Taille_canva = 600
-    diametre = Taille_canva / 20  # Taille d'un rond
-
-    app = Root()
-    app.mainloop()
+    PIG_FARM = Root()
+    PIG_FARM.mainloop()
 
 
 main()
