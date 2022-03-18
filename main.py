@@ -2,7 +2,7 @@ import tkinter as tk
 import math
 import random
 
-# Définition des classes :
+# ### Définition des classes :
 
 
 class Pigs:
@@ -19,11 +19,9 @@ class Pigs:
      rose (DeepPink2) : cochon prêt à bâiller\n"
      vert (Green2) : cochon bâillant\n"
      gris (grey) : cochon ne pouvant plus bâiller
-
-     Méthode piggy et mouvement publiques.
     """
 
-    def __init__(self, posx, posy, can, fen, canva_size=600):
+    def __init__(self, posx, posy, can, fen, canva_size=500):
 
         # Détermination du sexe
         self.sexe = 'male' if random.random() < 0.5 else 'femelle'
@@ -32,23 +30,12 @@ class Pigs:
         self.age = random.randint(0, 22)
         self.jours = 0
 
-        # Initialisation des variables utilisées
-
-# ##########################################################################
-# BALISE 1 - Gestion du déplacement des cochons
-
+        # ## Initialisation des variables utilisé
         # Coordonnées du cochon
-        self.x1 = 0
-        self.y1 = 0
-        self.x2 = 0
-        self.y2 = 0
+        self.x1, self.y1, self.x2, self.y2 = 0, 0, 0, 0
 
         self.DX = 0  # pas en x
-        self.DY = 0  # pas en y
-
-# ##########################################################################
-
-        # Initialisation des variables utilisées
+        self.DY = 0  # pas en
 
         self.posx = posx  # position initiale sur le canva en x
         self.posy = posy  # position initiale sur le canva en y
@@ -75,39 +62,31 @@ class Pigs:
         return f"Cochon {self.sexe}, position {str(self.posy)[0:3]} : {str(self.posx)[0:3]}"
 
     def piggy(self):
-
-        # ##########################################################################
-        # BALISE 2
         """
         Génère le visuel du cochon (visual) selon son age et sa position
         """
 
-        # cochon adulte
+        # cochon adulte #
         if 9 <= self.age <= 22:
             self.piggy_size = self.diametre
             self.visual = self.can.create_oval(self.posx,  # x1
-                                               self.posy,  # x2
+                                               self.posy,  # y1
                                                self.posx + self.piggy_size,  # x2
                                                self.posy + self.piggy_size,  # y2
                                                width=1, fill='DeepPink2')
 
-        # cochonnet
+        # cochonnet #
         else:
             self.piggy_size = self.diametre/1.2
             self.visual = self.can.create_oval(self.posx,  # x1
-                                               self.posy,  # x2
+                                               self.posy,  # y1
                                                self.posx + self.piggy_size,  # x2
                                                self.posy + self.piggy_size,  # y2
                                                width=1, fill='LightPink1')
 
         self.x1, self.y1, self.x2, self.y2 = self.can.bbox(self.visual)
 
-        # ##########################################################################
-
     def __direction(self):
-
-        # ##########################################################################
-        # BALISE 3
         """
         Renvoie la direction aléatoire du cochon après l'initialisation OU une rencontre inter-cochon
         """
@@ -115,12 +94,7 @@ class Pigs:
         self.DX = 10 * math.cos(angle)
         self.DY = 10 * math.sin(angle)
 
-        # ##########################################################################
-
     def __distance(self, other_pig):
-
-        # ##########################################################################
-        # BALISE 5
         """
         Renvoie la distance inter-cochon pour une paire de cochon
         """
@@ -135,12 +109,7 @@ class Pigs:
         # Calcul de la distance entre les deux cochons
         self.dist = math.sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - self.diametre
 
-        # ##########################################################################
-
     def __wall_bouncing(self):
-
-        # ##########################################################################
-        # BALISE 4
         """
         Fait rebondir les cochons qui se heurtent à une parois du canva en inversant DX et DY
         """
@@ -152,16 +121,11 @@ class Pigs:
         if self.y1 + self.piggy_size + self.DY > self.canva_size or self.y1 + self.DY < 0:
             self.DY = -self.DY
 
-        # ##########################################################################
-
-        # ##########################################################################
-        # BALISE 8 - Gestion du bâillement
-
     def __spont_yawning(self):
         """
         Déclenche un bâillement spontanné (rend le cochon vert == bâillement) et ajoute un temps de récupération (recup)
         """
-        if not self.age < 9 and random.random() < 0.001 and self.recup == 0:
+        if not self.age < 9 and random.random() < 0.0007 and self.recup == 0:
             self.can.itemconfig(self.visual, fill='Green2')
             self.recup = 6
 
@@ -196,22 +160,20 @@ class Pigs:
         if self.can.itemcget(other_pig.visual, 'fill') == 'Green2' and other_pig.sexe == "male":
             if other_pig.sexe == "male":
 
-                if self.dist < 10:
+                if self.dist < self.canva_size/50:
                     self.proba += 0.65 * 0.4
-                elif self.dist < 100:
+                elif self.dist < self.canva_size/5:
                     self.proba += 0.2 * 0.4
                 else:
                     self.proba += 0.25 * 0.4
 
             else:  # proba si autre cochon == femelle
-                if self.dist < 10:
+                if self.dist < self.canva_size/50:
                     self.proba += 0.65 * 0.28
-                elif self.dist < 100:
+                elif self.dist < self.canva_size/5:
                     self.proba += 0.2 * 0.28
                 else:
                     self.proba += 0.25 * 0.28
-
-        # ##########################################################################
 
     def __aging(self):
         """
@@ -265,9 +227,6 @@ class Pigs:
             # Controle des parois, rebondit si prochain pas DX ou DY heurte la paroi du canva
             self.__wall_bouncing()
 
-            # ##########################################################################
-            # Balise 6 - Iteration au sein de mouvement dans l'ensemble des cochons (sauf avec eux-meme) pour :
-
             # - calculer la distance inter-cochon
             # - contrôler la superposition
             # - si superposition, étourdir le cochon (relancer la direction aléatoire)
@@ -284,20 +243,13 @@ class Pigs:
 
                 self.__yawning_probability(PIG)
 
-            # ##########################################################################
-
             # Prise en compte de l'age du cochon dans
             self.proba = self.proba * self.dico_age[self.age]
-
-            # ##########################################################################
-            # Balise 7 - avancée des cochons en actualisant leur coordonées
 
             self.x1 += self.DX
             self.y1 += self.DY
 
             self.can.coords(self.visual, self.x1, self.y1, self.x1 + self.piggy_size, self.y1 + self.piggy_size)
-
-            # ##########################################################################
 
             # bâillement contagieux
             self.__contag_yawning()
@@ -308,8 +260,8 @@ class Pigs:
             # Vieillissement
             self.__aging()
 
-            # Mouvement de 125 ms
-            self.fen.after(125, self.mouvement)
+            # Mouvement de 75 ms
+            self.fen.after(75, self.mouvement)
 
 
 class Root(tk.Tk):
@@ -318,7 +270,7 @@ class Root(tk.Tk):
     Affichage du GUI par tkinter
     """
 
-    def __init__(self, canva_size=600):
+    def __init__(self, canva_size=500):
         tk.Tk.__init__(self)
         self.label = tk.Label(self, text="", width=10)
 
@@ -403,12 +355,12 @@ class Root(tk.Tk):
             PIG.mouvement()
 
 
-# Définition des fonctions :
+# ### Définition des fonctions :
 
 
 def pause():
     """
-    Renvoie la variable global stop.
+    Renvoie la variable global stop après l'avoir inversé.
     Si stop == 0, appelle la méthode mouvement pour tous les cochons
     """
 
@@ -422,15 +374,9 @@ def pause():
 
 def main():
     """
-    Lance le programme.
-
-    Mets la simulation sur pause.
+    Fonction principale du programme.
     Génère le GUI (pig_farm) et sa mainloop
     """
-
-    global stop
-    stop = 0
-
     pig_farm = Root()
     pig_farm.mainloop()
 
