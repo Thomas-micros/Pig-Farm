@@ -1,14 +1,8 @@
-#####################
-#   Bibliotheques   #
-#####################
-
 import tkinter as tk
 import math
 import random
 
-#################
-#   Classes   #
-#################
+# Définition des classes :
 
 
 class Pigs:
@@ -189,6 +183,7 @@ class Pigs:
             if self.recup > 0:
                 self.can.itemconfig(self.visual, fill='grey')  # Cochon protégé
                 self.recup -= 1
+
             elif self.recup == 0:
                 self.can.itemconfig(self.visual, fill='DeepPink2')  # Cochon déprotégé
 
@@ -317,20 +312,6 @@ class Pigs:
             self.fen.after(125, self.mouvement)
 
 
-def pause():
-    """
-    Renvoie la variable global stop.
-    Si stop == 0, appelle la méthode mouvement pour tous les cochons
-    """
-
-    global stop
-    stop = 0 if stop == 1 else 1
-
-    if stop == 0:
-        for PIG in Piggy_list:
-            PIG.mouvement()
-
-
 class Root(tk.Tk):
 
     """
@@ -400,7 +381,7 @@ class Root(tk.Tk):
         nb_cochon = self.scale.get()
 
         # Calcul de la distance optimale entre les cochons lors de l'initialisation
-        init_distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon)  - self.diametre
+        init_distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon) - self.diametre
 
         # Génération des cochons sur le canvas
         while posy < self.canva_size - self.diametre:
@@ -418,6 +399,23 @@ class Root(tk.Tk):
             posy += self.diametre + init_distance_inter_cochon
             posx = 0  # retour à la ligne
 
+        for PIG in Piggy_list:
+            PIG.mouvement()
+
+
+# Définition des fonctions :
+
+
+def pause():
+    """
+    Renvoie la variable global stop.
+    Si stop == 0, appelle la méthode mouvement pour tous les cochons
+    """
+
+    global stop
+    stop = 0 if stop == 1 else 1
+
+    if stop == 0:
         for PIG in Piggy_list:
             PIG.mouvement()
 
