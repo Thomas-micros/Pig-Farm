@@ -19,6 +19,14 @@ class Pigs:
      - Le canva de la porcherie (can)
      - La fenêtre tkinter (fen)
      - La taille du canvas (canva_size)
+
+     La gestion des bâillement se fait à partir de l'age et de la couleur du cochon :
+     rose pâle (LightPink1) : cochonnet de moins de 9 mois (ne bâillant pas)
+     rose (DeepPink2) : cochon prêt à bâiller\n"
+     vert (Green2) : cochon bâillant\n"
+     gris (grey) : cochon ne pouvant plus bâiller
+
+     Méthode piggy et mouvement publiques.
     """
 
     def __init__(self, posx, posy, can, fen, canva_size=600):
@@ -54,7 +62,7 @@ class Pigs:
         self.visual = 0  # cochon
         self.piggy_size = 0  # Taille du cochon
 
-        self.recup = 0  # Décompte du temps de récupération entre deux baillements
+        self.recup = 0  # Décompte du temps de récupération entre deux bâillements
 
         self.can = can  # canvas de la porcherie
         self.fen = fen  # fenetre tkinter
@@ -64,7 +72,7 @@ class Pigs:
 
         self.proba = 0
 
-        # Probabilité de baillement selon l'age du cochon
+        # Probabilité de bâillement selon l'age du cochon
         self.dico_age = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0,
                          9: 0.52, 10: 0.5, 11: 0.1, 12: 0.15, 13: 0.45, 14: 0.4, 15: 0.2, 16: 0.13, 17: 0.4, 18: 0.8,
                          19: 0.82, 20: 0.68, 21: 0.25, 22: 0.6, 23: 0}
@@ -77,7 +85,7 @@ class Pigs:
         # ##########################################################################
         # BALISE 2
         """
-        Visuel du cochon selon son age
+        Génère le visuel du cochon (visual) selon son age et sa position
         """
 
         # cochon adulte
@@ -107,7 +115,7 @@ class Pigs:
         # ##########################################################################
         # BALISE 3
         """
-        Renvoie la direction aléatoire du cochon après l'initialisation/une rencontre inter-cochon
+        Renvoie la direction aléatoire du cochon après l'initialisation OU une rencontre inter-cochon
         """
         angle = random.uniform(0, 2 * math.pi)
         self.DX = 10 * math.cos(angle)
@@ -120,7 +128,7 @@ class Pigs:
         # ##########################################################################
         # BALISE 5
         """
-        Renvoie la distance inter-cochon
+        Renvoie la distance inter-cochon pour une paire de cochon
         """
         # Calcul du centre du cochon déplacé de DX, DY
         centredx1 = self.x1 + self.DX + self.diametre/2
@@ -131,7 +139,7 @@ class Pigs:
         centrey2 = other_pig.y1 + self.diametre/2
 
         # Calcul de la distance entre les deux cochons
-        self.longueur = math.sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - self.diametre
+        self.dist = math.sqrt((centredx1 - centrex2) ** 2 + (centredy1 - centrey2) ** 2) - self.diametre
 
         # ##########################################################################
 
@@ -140,7 +148,7 @@ class Pigs:
         # ##########################################################################
         # BALISE 4
         """
-        Fait rebondir les cochons qui se heurtent à une parois en inversant DX et DY
+        Fait rebondir les cochons qui se heurtent à une parois du canva en inversant DX et DY
         """
         # rebond à droite et à gauche
         if self.x1 + self.piggy_size + self.DX > self.canva_size or self.x1 + self.DX < 0:
@@ -153,28 +161,29 @@ class Pigs:
         # ##########################################################################
 
         # ##########################################################################
-        # BALISE 8 - Gestion du baillement
+        # BALISE 8 - Gestion du bâillement
 
     def __spont_yawning(self):
         """
-        Déclenche un baillement spontanné en ajoutant un temps de récupération (recup)
+        Déclenche un bâillement spontanné (rend le cochon vert == bâillement) et ajoute un temps de récupération (recup)
         """
         if not self.age < 9 and random.random() < 0.001 and self.recup == 0:
             self.can.itemconfig(self.visual, fill='Green2')
-            self.recup = 5
+            self.recup = 6
 
     def __contag_yawning(self):
         """
-        Faire bailler le cochon selon sa proprabilité correspondante.
-        concretement : rend le cochon vert
+        Fait bâiller le cochon selon sa proprabilité correspondante.
+        concretement : rend le cochon vert (== bâillement) et ajoute un temps de recup
         """
         if random.random() < self.proba and self.recup == 0:
             self.can.itemconfig(self.visual, fill='Green2')
-            self.recup = 5
+            self.recup = 6
 
     def __yawning_shield(self):
         """
-        Protege un cochon d'un rebaillement pendant la durée du décompte.
+        Protege un cochon d'un rebâillement pendant le temps de recup, le rend gris pour symboliser cette récupération
+        et fait diminuer le temps de recup. Si recup == 0, rend le cochon rose à nouveau (prêt à bâiller)
         """
         if 9 <= self.age <= 22:
             if self.recup > 0:
@@ -184,37 +193,45 @@ class Pigs:
                 self.can.itemconfig(self.visual, fill='DeepPink2')  # Cochon déprotégé
 
     def __yawning_probability(self, other_pig):
-        # Calcul de la probalilité de bailler
+        """
+        Calcule la probabilité de bâiller et la renvoie dans self.proba
+        """
+        # Calcul de la probalilité de bâiller
 
         if self.can.itemcget(other_pig.visual, 'fill') == 'Green2' and other_pig.sexe == "male":
             if other_pig.sexe == "male":
 
-                if self.longueur < 10:
+                if self.dist < 10:
                     self.proba += 0.65 * 0.4
-                elif self.longueur < 100:
+                elif self.dist < 100:
                     self.proba += 0.2 * 0.4
                 else:
                     self.proba += 0.25 * 0.4
 
-            else:
-
-                if self.longueur < 10:
+            else:  # proba si autre cochon == femelle
+                if self.dist < 10:
                     self.proba += 0.65 * 0.28
-                elif self.longueur < 100:
+                elif self.dist < 100:
                     self.proba += 0.2 * 0.28
                 else:
                     self.proba += 0.25 * 0.28
 
         # ##########################################################################
 
-    def __aging(self):  # Permet le vieillissement d'un cochon une fois tout les 30 tours
+    def __aging(self):
+        """
+        Fait vieillir le cochon d'un mois tout les 30 itération de la mainloop,
+        renvoie l'age dans self.age et modifie le visuel en fonction de l'age
+        """
+
         if self.jours == 30:
             self.jours = 0
+
             if self.age < 23:
                 self.age += 1
                 if self.age == 9:
                     self.piggy_size = self.diametre
-            else:
+            else:  # Le cochon renait de ses cendres après 22 mois, piste d'amélioration
                 self.age = 1
                 self.piggy_size = self.diametre/1.2
                 self.can.itemconfig(self.visual, fill='LightPink1')
@@ -222,8 +239,12 @@ class Pigs:
             self.jours += 1
 
     def mouvement(self):
+        """
+        Méthode de mouvement, s'interrompt si la simulation est en pause (stop == 1)
 
-        # Interromp la boucle si pause
+        """
+
+        # Interrompt la boucle si pause activée
         if stop == 1:
             pass
 
@@ -232,37 +253,37 @@ class Pigs:
             if not hasattr(self, 'recup'):
                 self.recup = 0
 
-            # Protection post baillement
+            # Protection post bâillement
             self.__yawning_shield()
 
-            # Par défaut garde les valeurs DX,DY précédentes sinon initialisation de l'attribut DX et DY
+            # DX, DY précédentes sinon initialisation par la méthode direction
             if not hasattr(self, 'DX'):
                 self.__direction()
 
-            # initilisation des variables
+            # remise des probas à 0
             self.proba = 0
 
             # levage du blocage du mouvement
             if self.DX == 0 or self.DY == 0:
                 self.__direction()
 
-            # Controle des parois
+            # Controle des parois, rebondit si prochain pas DX ou DY heurte la paroi du canva
             self.__wall_bouncing()
 
             # ##########################################################################
-            # Balise 6 - Iteration dans l'ensemble des cochons (sauf lui-même) pour :
+            # Balise 6 - Iteration au sein de mouvement dans l'ensemble des cochons (sauf avec eux-meme) pour :
 
             # - calculer la distance inter-cochon
             # - contrôler la superposition
-            # - si superposition, étourdir le cochon (relancer la direction aléatoire
-            # - calculer la probabilité de bailler en fonction de la distance
+            # - si superposition, étourdir le cochon (relancer la direction aléatoire)
+            # - calculer la probabilité de bâiller en fonction de la distance
 
             for PIG in Piggy_list:
                 if PIG.x1 != self.x1 and PIG.y1 != self.y1:
 
                     self.__distance(PIG)
 
-                    if self.longueur <= 0:
+                    if self.dist <= 0:
                         self.DX, self.DY, proba = 0, 0, 0  # Étourdissement
                         break
 
@@ -283,39 +304,28 @@ class Pigs:
 
             # ##########################################################################
 
-            # Baillement transmis
+            # bâillement contagieux
             self.__contag_yawning()
 
-            # Baillement spontanné
+            # bâillement spontanné
             self.__spont_yawning()
 
             # Vieillissement
             self.__aging()
 
-            # Mouvement de 50ms
+            # Mouvement de 125 ms
             self.fen.after(125, self.mouvement)
 
 
-class Counter:
-    def __init__(self, nb_baillement=0):
-        self.nb_baillement = nb_baillement
-
-    def add_baillement(self):
-        self.nb_baillement += 1
-
-    def set_nb_baillement(self, nb):
-        self.nb_baillement = nb
-
-    def get_nb_baillement(self):
-        return self.nb_baillement
-
-
 def pause():
+    """
+    Renvoie la variable global stop.
+    Si stop == 0, appelle la méthode mouvement pour tous les cochons
+    """
 
     global stop
     stop = 0 if stop == 1 else 1
 
-    # Reprise du mouvement
     if stop == 0:
         for PIG in Piggy_list:
             PIG.mouvement()
@@ -324,15 +334,12 @@ def pause():
 class Root(tk.Tk):
 
     """
-    Classe d'affichage
+    Affichage du GUI par tkinter
     """
 
     def __init__(self, canva_size=600):
         tk.Tk.__init__(self)
         self.label = tk.Label(self, text="", width=10)
-
-        # Variables
-        self.nb_baillement = 0
 
         self.canva_size = canva_size
         self.diametre = self.canva_size / 20
@@ -366,35 +373,36 @@ class Root(tk.Tk):
         tk.Label(self, text="\n").pack()
 
         tk.Label(self, text="Légende :\n"
-                            "Petit cercle rose pâle : cochonnet de moins de 9 mois (ne baillant pas)\n"
-                            "Cercle rose : cochon prêt à bailler\n"
-                            "Cercle vert : cochon baillant\n"
-                            "Cercle gris : cochon ne pouvant plus bailler", font="Arial 18 italic ").pack()
+                            "Petit cercle rose pâle : cochonnet de moins de 9 mois (ne bâillant pas)\n"
+                            "Cercle rose : cochon prêt à bâiller\n"
+                            "Cercle vert : cochon bâillant\n"
+                            "Cercle gris : cochon ne pouvant plus bâiller", font="Arial 13 italic ").pack()
 
     def erase(self):
-        # Effacement des formes
+        """
+        Efface les formes présentes dans le canvas
+        """
         self.canvas.delete(tk.ALL)
 
     def generateur_de_cochon(self):
-        # Mise en pause du mouvement précédent
-        global stop, Piggy_list, Yawning_count
-        stop = 1
-        Yawning_count = 0
+        """
+        Génère les cochons, au nombre de nb_cochon récupéré dans la Doublevar(),
+        les positionne dans le canvas, appelle le mouvement des cochons pour tout les cochons
+        """
+        global stop, Piggy_list
 
-        # Effacement des formes
-        self.erase()
-
-        # Récupération du nombre de cochon
-        nb_cochon = self.scale.get()
-
-        # Calcul de la distance optimale entre les cochons
-        distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon)  - self.diametre
-
-        # Initialisation des variables
+        stop = 1  # Met la simulation en pause
         Piggy_list = []
         posx, posy = 0, 0
 
-        # Création des cochons
+        self.erase()
+
+        nb_cochon = self.scale.get()
+
+        # Calcul de la distance optimale entre les cochons lors de l'initialisation
+        init_distance_inter_cochon = math.sqrt((self.canva_size ** 2 - self.diametre) / nb_cochon)  - self.diametre
+
+        # Génération des cochons sur le canvas
         while posy < self.canva_size - self.diametre:
             while posx < self.canva_size - self.diametre:
                 if len(Piggy_list) == nb_cochon:
@@ -402,20 +410,25 @@ class Root(tk.Tk):
                 pig_name = Pigs(posx, posy, can=self.canvas, fen=self, canva_size=self.canva_size)
                 pig_name.piggy()
                 Piggy_list.append(pig_name)
-                posx += self.diametre + distance_inter_cochon
+                posx += self.diametre + init_distance_inter_cochon
 
             if len(Piggy_list) == nb_cochon:
                 break
 
-            posy += self.diametre + distance_inter_cochon
+            posy += self.diametre + init_distance_inter_cochon
             posx = 0  # retour à la ligne
 
-        # Déplacement des cochons
         for PIG in Piggy_list:
             PIG.mouvement()
 
 
 def main():
+    """
+    Lance le programme.
+
+    Mets la simulation sur pause.
+    Génère le GUI (pig_farm) et sa mainloop
+    """
 
     global stop
     stop = 0
